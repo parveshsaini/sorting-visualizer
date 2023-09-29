@@ -1,1 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bgi{
+    background-image: url("../src/assets/images/bg2.jpg");
+    background-size: cover; /* This property scales the background image to cover the entire container without repeating */
+    background-repeat: no-repeat; /* This property prevents the background image from repeating */
+    background-position: center center;
+}

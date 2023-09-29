@@ -1,15 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
-  n = 40;
+export class AppComponent implements OnInit{
+
+  ngOnInit(): void {
+      this.init();
+  }
+
+  n = 50;
   array: number[] = [];
   highlightedIndices: number[] = [];
   audioCtx: AudioContext | null = null;
+  giphy: boolean= false;
+
 
   init() {
     this.array = [];
@@ -17,9 +24,12 @@ export class AppComponent {
       this.array[i] = Math.random();
     }
     this.showBars();
+  
   }
 
-  play(sortAlgo: string) {
+  play(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const sortAlgo = target.value;
     let swaps: number[][] = [];
   
     switch (sortAlgo) {
@@ -35,22 +45,28 @@ export class AppComponent {
       case 'quickSort':
         swaps = this.quicksort([...this.array]);
         break;
-      case 'mergeSort':
-        swaps = this.mergeSort([...this.array]);
-        break;
+        case 'countSort':
+          swaps = this.countSort([...this.array]);
+          break;
+        case 'radixSort':
+          swaps = this.radixSort([...this.array]);
+          break;
       default:
         swaps = this.bubbleSort([...this.array]);
         break;
     }
-  
+    this.giphy= true;
     this.animate(swaps);
   }
 
   animate(swaps: number[][]) {
+
     if (swaps.length == 0) {
       this.showBars();
+      this.giphy= false;
       return;
     }
+    
     const [i, j] = swaps.shift()!;
     [this.array[i], this.array[j]] = [this.array[j], this.array[i]];
     this.showBars([i, j]);
@@ -60,7 +76,50 @@ export class AppComponent {
     setTimeout(() => {
       this.animate(swaps);
     }, 50);
+
+    
   }
+
+  countSort(array: number[]) {
+    const swaps: number[][] = [];
+    const max = Math.max(...array);
+    const count = Array(max + 1).fill(0);
+    
+    // Count occurrences of each value
+    array.forEach(val => count[val]++);
+    
+    let index = 0;
+    for (let val = 0; val <= max; val++) {
+      while (count[val] > 0) {
+        swaps.push([index, val]); // Push [index, val] to record swaps
+        array[index++] = val;
+        count[val]--;
+      }
+    }
+    
+    return swaps;
+  }
+  
+  
+  // Add this function to your AppComponent class
+  radixSort(array: number[]) {
+    const swaps: number[][] = [];
+    const max = Math.max(...array);
+    const maxDigits = Math.floor(Math.log10(max)) + 1;
+    let divisor = 1;
+    for (let i = 0; i < maxDigits; i++, divisor *= 10) {
+      const buckets: number[][] = Array.from({ length: 10 }, () => []);
+      for (let num of array) {
+        buckets[Math.floor((num / divisor) % 10)].push(num);
+      }
+      array = ([] as number[]).concat(...buckets);
+      array.forEach((val, index) => {
+        swaps.push([index, val]);
+      });
+    }
+    return swaps;
+  }
+  
 
   bubbleSort(array: number[]) {
     const swaps: number[][] = [];
@@ -78,55 +137,7 @@ export class AppComponent {
     return swaps;
   }
 
-  mergeSort(array: number[]) {
-    const swaps: number[][] = [];
-  
-    const merge = (
-      left: number[],
-      right: number[],
-      leftIndex: number,
-      rightIndex: number
-    ) => {
-      const result: number[] = [];
-      let leftPointer = 0;
-      let rightPointer = 0;
-  
-      while (leftPointer < left.length && rightPointer < right.length) {
-        if (left[leftPointer] < right[rightPointer]) {
-          result.push(left[leftPointer]);
-          leftPointer++;
-        } else {
-          result.push(right[rightPointer]);
-          rightPointer++;
-        }
-      }
-  
-      return result.concat(left.slice(leftPointer), right.slice(rightPointer));
-    };
-  
-    const mergeSortRecursive = (arr: number[]): number[] => {
-      if (arr.length <= 1) {
-        return arr;
-      }
-  
-      const middle = Math.floor(arr.length / 2);
-      const left = arr.slice(0, middle);
-      const right = arr.slice(middle);
-  
-      return merge(
-        mergeSortRecursive(left),
-        mergeSortRecursive(right),
-        middle,
-        middle
-      );
-    };
-  
-    const sortedArray = mergeSortRecursive(array.slice());
-  
-    return swaps; // Since merge sort doesn't involve swapping elements
-  }
-  
-
+ 
   insertionSort(array: number[]) {
     const swaps: number[][] = [];
     for (let i = 1; i < array.length; i++) {
@@ -190,6 +201,9 @@ export class AppComponent {
     return swaps;
   }
 
+
+
+
   showBars(indices?: number[]) {
     this.highlightedIndices = indices || [];
   }
@@ -204,7 +218,7 @@ export class AppComponent {
     osc.start();
     osc.stop(this.audioCtx.currentTime + dur);
     const node = this.audioCtx.createGain();
-    node.gain.value = 0.1;
+    node.gain.value = 0.5;
     node.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + dur);
     osc.connect(node);
     node.connect(this.audioCtx.destination);

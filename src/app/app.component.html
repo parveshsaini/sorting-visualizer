@@ -1,25 +1,91 @@
 <!-- sorting-visualizer.component.html -->
+<div class="flex flex-col justify-center m-auto">
+  <h1
+    class="drop-shadow-lg text-5xl flex justify-center mt-4 mb-10 font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#C70039] via-[#F94C10] to-[#F8DE22]"
+  >
+    SORTING VISUALIZER
+  </h1>
 
-<h1>♬ Sorting Visualizer ♬</h1>
-<div id="container">
-  <div
-    *ngFor="let value of array; let i = index"
-    class="bar"
-    [ngStyle]="{
-      'height': value * 100 + '%',
-      'background-color': (highlightedIndices.includes(i)) ? 'red' : 'black'
-    }"
-  ></div>
+  <section id="container" class="justify-center mt-24 mb-7">
+    <div
+      class="flex justify-center bg-white opacity-80 rounded-md h-full w-auto pl-5 pr-5 pb-5 min-h-[300px]"
+      style="transform: scaleY(-1)"
+    >
+      <div
+        *ngFor="let value of array; let i = index"
+        class="bar inline"
+        [ngStyle]="{
+          height: value * 100 + '%',
+          'background-color': highlightedIndices.includes(i) ? 'red' : 'black'
+        }"
+        style="transform: scaleY(-1)"
+      ></div>
+    </div>
+  </section>
+
+  <section class="flex justify-center">
+    <button
+      type="button"
+      class="text-white bg-orange-600 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+      (click)="init()"
+    >
+      Reset
+    </button>
+
+    <select
+      class="text-white bg-orange-600 hover:bg-orange-800 focus:outline-none focus:ring-4 focus:ring-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+      (change)="play($event)"
+    >
+      <option value="">Select Sorting Algorithm</option>
+      <option value="bubbleSort">Bubble</option>
+      <option value="insertionSort">Insertion</option>
+      <option value="selectionSort">Selection</option>
+      <option value="quickSort">Quick</option>
+      <option value="countingSort">Count</option>
+      <option value="radixSort">Radix</option>
+    </select>
+  </section>
+
+  <footer class="bg-gray-800 pb-4 text-white">
+    <div class="flex justify-center">
+     
+        
+
+
+      <div class="container flex justify-center items-center">
+        <img
+          [ngStyle]="giphy ? { opacity: 1 } : { opacity: 0 }"
+          src="https://media.giphy.com/media/7437rn6ZBaLIY/giphy.gif"
+          alt=""
+          width="100px"
+          class="mr-2 "
+        />
+        <div class="flex flex-col">
+        <div class="flex justify-center">
+          <a href=""
+            ><img src="../assets/images/ig.png" alt="" class="w-12"
+          /></a>
+          <a href=""
+            ><img src="../assets/images/lkdn.png" alt="" class="w-12"
+          /></a>
+          <a href=""
+            ><img src="../assets/images/github.png" alt="" class="w-12"
+          /></a>
+        </div>
+        <p class="text-sm mt-2">Made with ❤️ by Parvesh</p>
+      </div>
+
+        <img
+        [ngStyle]="giphy ? { opacity: 1 } : { opacity: 0 }"
+        src="https://media.giphy.com/media/yqMtk0TfjRa5W/giphy.gif"
+        alt=""
+        width="150px"
+        class=""
+      />
+      </div>
+   
+ 
+     
+    </div>
+  </footer>
 </div>
-
-<hr />
-
-<div>
-  <button (click)="init()">Init</button>
-  <button (click)="play('bubbleSort')">Bubble</button>
-  <button (click)="play('insertionSort')">Insertion</button>
-  <button (click)="play('selectionSort')">Selection</button>
-  <button (click)="play('quickSort')">Quick</button>
-  <button (click)="play('mergeSort')">Merge</button>
-</div>
-
