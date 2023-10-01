@@ -11,7 +11,7 @@ export class AppComponent implements OnInit{
       this.init();
   }
 
-  n = 50;
+  n = 60;
   array: number[] = [];
   highlightedIndices: number[] = [];
   audioCtx: AudioContext | null = null;
@@ -45,12 +45,12 @@ export class AppComponent implements OnInit{
       case 'quickSort':
         swaps = this.quicksort([...this.array]);
         break;
-        case 'countSort':
-          swaps = this.countSort([...this.array]);
-          break;
-        case 'radixSort':
-          swaps = this.radixSort([...this.array]);
-          break;
+        // case 'countSort':
+        //   swaps = this.countSort([...this.array]);
+        //   break;
+        // case 'mergeSort':
+        //   this.mergeSort([...this.array]);
+        //   break;
       default:
         swaps = this.bubbleSort([...this.array]);
         break;
@@ -58,6 +58,11 @@ export class AppComponent implements OnInit{
     this.giphy= true;
     this.animate(swaps);
   }
+
+  showBars(indices?: number[]) {
+    this.highlightedIndices = indices || [];
+  }
+
 
   animate(swaps: number[][]) {
 
@@ -70,56 +75,121 @@ export class AppComponent implements OnInit{
     const [i, j] = swaps.shift()!;
     [this.array[i], this.array[j]] = [this.array[j], this.array[i]];
     this.showBars([i, j]);
-    this.playNote(200 + this.array[i] * 500);
-    this.playNote(200 + this.array[j] * 500);
+    this.playNote(200 + this.array[i] * 50);
+    this.playNote(200 + this.array[j] * 400);
 
     setTimeout(() => {
       this.animate(swaps);
-    }, 50);
+    }, 100);
 
-    
   }
 
-  countSort(array: number[]) {
-    const swaps: number[][] = [];
-    const max = Math.max(...array);
-    const count = Array(max + 1).fill(0);
-    
-    // Count occurrences of each value
-    array.forEach(val => count[val]++);
-    
-    let index = 0;
-    for (let val = 0; val <= max; val++) {
-      while (count[val] > 0) {
-        swaps.push([index, val]); // Push [index, val] to record swaps
-        array[index++] = val;
-        count[val]--;
+  mergeSort(array: number[]) {
+    const animations: any = [];
+    if (array.length <= 1) return array;
+    const auxiliaryArray = array.slice();
+    this.mergeSortHelper(array, 0, array.length - 1, auxiliaryArray, animations);
+    for(let i=0; i<array.length; i++){
+      console.log(array[i]);
+    }
+    return this.animateMergeSort(animations);
+  }
+  
+  mergeSortHelper(
+    mainArray: number[],
+    startIdx: number,
+    endIdx: number,
+    auxiliaryArray: number[],
+    animations: any,
+  ) {
+    if (startIdx === endIdx) return;
+    const middleIdx = Math.floor((startIdx + endIdx) / 2);
+    this.mergeSortHelper(auxiliaryArray, startIdx, middleIdx, mainArray, animations);
+    this.mergeSortHelper(auxiliaryArray, middleIdx + 1, endIdx, mainArray, animations);
+    this.doMerge(mainArray, startIdx, middleIdx, endIdx, auxiliaryArray, animations);
+  }
+  
+  doMerge(
+    mainArray: number[],
+    startIdx: number,
+    middleIdx: number,
+    endIdx: number,
+    auxiliaryArray: number[],
+    animations: any,
+  ) {
+    let k = startIdx;
+    let i = startIdx;
+    let j = middleIdx + 1;
+    while (i <= middleIdx && j <= endIdx) {
+      // These are the values that we're comparing; we push them once
+      // to change their color.
+      animations.push([i, j]);
+      // These are the values that we're comparing; we push them a second
+      // time to revert their color.
+      animations.push([i, j]);
+      if (auxiliaryArray[i] <= auxiliaryArray[j]) {
+        // We overwrite the value at index k in the original array with the
+        // value at index i in the auxiliary array.
+        animations.push([k, auxiliaryArray[i]]);
+        mainArray[k++] = auxiliaryArray[i++];
+      } else {
+        // We overwrite the value at index k in the original array with the
+        // value at index j in the auxiliary array.
+        animations.push([k, auxiliaryArray[j]]);
+        mainArray[k++] = auxiliaryArray[j++];
       }
     }
-    
-    return swaps;
-  }
-  
-  
-  // Add this function to your AppComponent class
-  radixSort(array: number[]) {
-    const swaps: number[][] = [];
-    const max = Math.max(...array);
-    const maxDigits = Math.floor(Math.log10(max)) + 1;
-    let divisor = 1;
-    for (let i = 0; i < maxDigits; i++, divisor *= 10) {
-      const buckets: number[][] = Array.from({ length: 10 }, () => []);
-      for (let num of array) {
-        buckets[Math.floor((num / divisor) % 10)].push(num);
-      }
-      array = ([] as number[]).concat(...buckets);
-      array.forEach((val, index) => {
-        swaps.push([index, val]);
-      });
+    while (i <= middleIdx) {
+      // These are the values that we're comparing; we push them once
+      // to change their color.
+      animations.push([i, i]);
+      // These are the values that we're comparing; we push them a second
+      // time to revert their color.
+      animations.push([i, i]);
+      // We overwrite the value at index k in the original array with the
+      // value at index i in the auxiliary array.
+      animations.push([k, auxiliaryArray[i]]);
+      mainArray[k++] = auxiliaryArray[i++];
     }
-    return swaps;
+    while (j <= endIdx) {
+      // These are the values that we're comparing; we push them once
+      // to change their color.
+      animations.push([j, j]);
+      // These are the values that we're comparing; we push them a second
+      // time to revert their color.
+      animations.push([j, j]);
+      // We overwrite the value at index k in the original array with the
+      // value at index j in the auxiliary array.
+      animations.push([k, auxiliaryArray[j]]);
+      mainArray[k++] = auxiliaryArray[j++];
+    }
+  }
+
+  animateMergeSort(animations: number[][]) {
+    let colorChange = true;
+    for (let i = 0; i < animations.length; i++) {
+      const arrayBars = document.getElementsByClassName('array-bar') as HTMLCollectionOf<HTMLElement>;
+      if (colorChange) { // For every even-indexed animation, we change the colors of the bars
+        const [barOneIdx, barTwoIdx] = animations[i];
+        const barOneStyle = arrayBars[barOneIdx].style;
+        const barTwoStyle = arrayBars[barTwoIdx].style;
+        const color = i % 3 === 0 ? 'red' : 'turquoise';
+        setTimeout(() => {
+          barOneStyle.backgroundColor = color;
+          barTwoStyle.backgroundColor = color;
+        }, i * 100);
+      } else { // For every odd-indexed animation, we revert the color and height of the bars
+        setTimeout(() => {
+          const [barIdx, newHeight] = animations[i];
+          const barStyle = arrayBars[barIdx].style;
+          barStyle.height = `${newHeight}px`;
+        }, i * 100);
+      }
+      colorChange = !colorChange;
+    }
   }
   
+
 
   bubbleSort(array: number[]) {
     const swaps: number[][] = [];
@@ -201,13 +271,48 @@ export class AppComponent implements OnInit{
     return swaps;
   }
 
-
-
-
-  showBars(indices?: number[]) {
-    this.highlightedIndices = indices || [];
+  countSort(array: number[]) {
+    const swaps: number[][] = [];
+    const max = Math.max(...array);
+    const count = Array(max + 1).fill(0);
+    
+    // Count occurrences of each value
+    array.forEach(val => count[val]++);
+    
+    let index = 0;
+    for (let val = 0; val <= max; val++) {
+      while (count[val] > 0) {
+        swaps.push([index, val]); // Push [index, val] to record swaps
+        array[index++] = val;
+        count[val]--;
+      }
+    }
+    
+    return swaps;
   }
+  
 
+  radixSort(array: number[]) {
+    const swaps: number[][] = [];
+    const max = Math.max(...array);
+    const maxDigits = Math.floor(Math.log10(max)) + 1;
+    let divisor = 1;
+    for (let i = 0; i < maxDigits; i++, divisor *= 10) {
+      const buckets: number[][] = Array.from({ length: 10 }, () => []);
+      for (let num of array) {
+        buckets[Math.floor((num / divisor) % 10)].push(num);
+      }
+      array = ([] as number[]).concat(...buckets);
+      array.forEach((val, index) => {
+        swaps.push([index, val]);
+      });
+    }
+    return swaps;
+  }
+  
+
+
+ 
   playNote(freq: number) {
     if (this.audioCtx == null) {
       this.audioCtx = new (AudioContext || (<any>window).webkitAudioContext)();

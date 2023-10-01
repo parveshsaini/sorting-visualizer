@@ -16,3 +16,9 @@ body{
     margin: 1px;
 }
 
+.bgi{
+    background-image: url("../../src/assets/images/bg2.jpg");
+    background-size: cover; /* This property scales the background image to cover the entire container without repeating */
+    background-repeat: no-repeat; /* This property prevents the background image from repeating */
+    background-position: center center;
+}
