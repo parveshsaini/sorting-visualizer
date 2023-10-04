@@ -48,9 +48,10 @@ export class AppComponent implements OnInit{
         // case 'countSort':
         //   swaps = this.countSort([...this.array]);
         //   break;
-        // case 'mergeSort':
-        //   this.mergeSort([...this.array]);
-        //   break;
+        case 'mergeSort':
+  
+          this.mergeSort([...this.array]);
+          break;
       default:
         swaps = this.bubbleSort([...this.array]);
         break;
@@ -85,6 +86,9 @@ export class AppComponent implements OnInit{
   }
 
   mergeSort(array: number[]) {
+    this.giphy= true;
+    console.log("giphy true now at func");
+    
     const animations: any = [];
     if (array.length <= 1) return array;
     const auxiliaryArray = array.slice();
@@ -92,6 +96,7 @@ export class AppComponent implements OnInit{
     for(let i=0; i<array.length; i++){
       console.log(array[i]);
     }
+    
     return this.animateMergeSort(animations);
   }
   
@@ -166,27 +171,35 @@ export class AppComponent implements OnInit{
   }
 
   animateMergeSort(animations: number[][]) {
-    let colorChange = true;
+    
     for (let i = 0; i < animations.length; i++) {
-      const arrayBars = document.getElementsByClassName('array-bar') as HTMLCollectionOf<HTMLElement>;
+      const arrayBars = document.getElementsByClassName('bar') as HTMLCollectionOf<HTMLElement>;
+      let colorChange = i % 3 !== 2;
       if (colorChange) { // For every even-indexed animation, we change the colors of the bars
         const [barOneIdx, barTwoIdx] = animations[i];
         const barOneStyle = arrayBars[barOneIdx].style;
         const barTwoStyle = arrayBars[barTwoIdx].style;
-        const color = i % 3 === 0 ? 'red' : 'turquoise';
+        const color = i % 3 === 0 ? 'red' : 'black';
+
         setTimeout(() => {
+          this.playNote(200 + this.array[barOneIdx] * 50);
+          this.playNote(200 + this.array[barOneIdx] * 400);
           barOneStyle.backgroundColor = color;
           barTwoStyle.backgroundColor = color;
-        }, i * 100);
+        }, i * 50);
       } else { // For every odd-indexed animation, we revert the color and height of the bars
         setTimeout(() => {
           const [barIdx, newHeight] = animations[i];
           const barStyle = arrayBars[barIdx].style;
-          barStyle.height = `${newHeight}px`;
-        }, i * 100);
+          barStyle.height = `${newHeight* 100}%`;
+        }, i * 50);
       }
       colorChange = !colorChange;
+    // console.log("gif false after loop");
+
+      // this.giphy= false;
     }
+     
   }
   
 
